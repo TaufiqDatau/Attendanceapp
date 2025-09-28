@@ -28,6 +28,15 @@
         "tsConfigPath": "apps/attendance-service/tsconfig.app.json"
       }
     },
+    "auth-service": {
+      "type": "application",
+      "root": "apps/auth-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth-service/tsconfig.app.json"
+      }
+    },
     "users-service": {
       "type": "application",
       "root": "apps/users-service",
