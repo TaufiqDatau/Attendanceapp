@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/wfh-attendance-app/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/wfh-attendance-app/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/wfh-attendance-app",
+  "projects": {
+    "api-gateway": {
+      "type": "application",
+      "root": "apps/api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "attendance-service": {
+      "type": "application",
+      "root": "apps/attendance-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/attendance-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/attendance-service/tsconfig.app.json"
+      }
+    },
+    "users-service": {
+      "type": "application",
+      "root": "apps/users-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/users-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/users-service/tsconfig.app.json"
+      }
+    },
+    "wfh-attendance-app": {
+      "type": "application",
+      "root": "apps/wfh-attendance-app",
+      "entryFile": "main",
+      "sourceRoot": "apps/wfh-attendance-app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/wfh-attendance-app/tsconfig.app.json"
+      }
+    }
+  }
+}
