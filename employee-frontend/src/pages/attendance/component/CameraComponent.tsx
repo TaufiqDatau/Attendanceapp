@@ -1,7 +1,10 @@
+import AttendanceConfirmationModal from "@/pages/attendance/component/AttendanceConfirmation";
 import type { DesignatedArea } from "@/pages/attendance/interface/area";
 import type { Coordinates } from "@/pages/attendance/interface/coordinates";
+import { ApiError, apiFetch } from "@/utils/FetchHelper";
 import { isUserInArea } from "@/utils/haversine";
 import React, { useCallback, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Webcam from "react-webcam";
 
 // --- Constants ---
@@ -19,13 +22,43 @@ const CameraComponent: React.FC<{
   handleRetry,
   area,
 }): React.ReactElement => {
+  const navigate = useNavigate();
   // --- Refs with explicit types ---
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // --- State with explicit types ---
   const [finalImage, setFinalImage] = useState<string | null>(null);
+
   // State to allow manually re-triggering the location fetch
+  /**
+   * Converts a Data URL string into a File object.
+   * @param {string} dataurl - The Data URL string to convert.
+   * @param {string} filename - The desired name for the output file.
+   * @returns {File} A File object.
+   */
+  function dataURLtoFile(dataurl: string, filename: string): File {
+    // Split the Data URL to get the data and MIME type
+    const arr = dataurl.split(",");
+    const mimeMatch = arr[0].match(/:(.*?);/);
+
+    if (!mimeMatch) {
+      throw new Error("Invalid Data URL: MIME type not found.");
+    }
+
+    const mime = mimeMatch[1];
+    const bstr = atob(arr[1]); // Decode the base64 string
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    // Convert the binary string to a typed array
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    // Create and return the File object
+    return new File([u8arr], filename, { type: mime });
+  }
 
   // Get user's location when the component mounts or when retried
 
@@ -92,6 +125,51 @@ const CameraComponent: React.FC<{
     setFinalImage(null);
   };
 
+  async function submitAttendance(finalImages: string, coords: Coordinates) {
+    const attendanceImages = dataURLtoFile(finalImages, "image.jpeg");
+    // 1. Create a new FormData object.
+    // This is the standard way to prepare data for a multipart/form-data request.
+    const formData = new FormData();
+
+    // 2. Append the required fields to the FormData object.
+    // The keys ('latitude', 'longitude', 'file') must match what your API expects.
+    formData.append("latitude", String(coords.lat));
+    formData.append("longitude", String(coords.lon));
+    formData.append("file", attendanceImages);
+
+    try {
+      console.log("Submitting attendance...");
+      // 3. Call apiFetch with the FormData object as the payload.
+      // The helper will handle setting the correct headers.
+      const response = await apiFetch("/checkin", {
+        method: "POST",
+        auth: true,
+        payload: formData, // Pass the formData here
+      });
+
+      console.log("Attendance submitted successfully! ✅", response);
+      return response;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        console.error(`API Error (${error.status}):`, error.message);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
+      // Optionally re-throw or return an error state
+      throw error;
+    }
+  }
+
+  async function handleConfirm() {
+    if (!finalImage || !coords) {
+      return;
+    }
+    const response = await submitAttendance(finalImage, coords);
+    if (response) {
+      setFinalImage(null);
+      navigate("/");
+    }
+  }
   return (
     <div className="min-h-[80vh] bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg flex flex-col items-center justify-between p-6">
       {finalImage ? (
@@ -189,6 +267,15 @@ const CameraComponent: React.FC<{
 
       {/* Hidden canvas used for processing the image */}
       <canvas ref={canvasRef} className="hidden" />
+
+      {finalImage && coords && (
+        <AttendanceConfirmationModal
+          open={finalImage !== null}
+          finalImage={finalImage}
+          onConfirm={handleConfirm}
+          onCancel={handleRetake}
+        />
+      )}
     </div>
   );
 };

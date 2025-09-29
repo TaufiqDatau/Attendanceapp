@@ -11,9 +11,13 @@ export class AuthService {
 
   async validateToken(token: string) {
     try {
-      return this.jwtService.verify(token);
-    } catch (e) {
-      return null; // Or throw an error
+      const decodedUser = await this.jwtService.verifyAsync(token);
+      console.log(decodedUser, 'this is the user');
+      return decodedUser; // Return the user payload on success
+    } catch (error) {
+      // Return null or throw an RpcException for the gateway to handle
+      console.error('Token validation failed:', error.message);
+      return null;
     }
   }
 
@@ -33,7 +37,12 @@ export class AuthService {
       throw new UnauthorizedException('email or password is wrong');
     }
 
-    const payload = { email: user.email, sub: user.id, roles: user.roles };
+    const payload = {
+      name: user.name,
+      email: user.email,
+      id: user.id,
+      roles: user.roles,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };

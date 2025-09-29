@@ -16,6 +16,7 @@ export class AuthRepository {
         u.email,
         u.status,
         a.password_hash,
+        a.failed_login_attempts,
         GROUP_CONCAT(r.name) AS roles
       FROM users u
       LEFT JOIN user_roles ur ON u.id = ur.user_id
@@ -44,12 +45,13 @@ export class AuthRepository {
         ? userRow.roles.split(',').map((name) => ({ name }))
         : [],
     };
+    console.log(user);
 
     return user;
   }
 
   async updateUserLoginAttempts(userId: number, failedLoginAttempts: number) {
-    const sql = 'UPDATE auth SET failed_login_attempts = ? WHERE id = ?';
+    const sql = 'UPDATE auth SET failed_login_attempts = ? WHERE user_id = ?';
     await this.pool.query(sql, [failedLoginAttempts, userId]);
   }
 }

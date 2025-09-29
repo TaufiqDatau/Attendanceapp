@@ -76,4 +76,20 @@ export class UserRepository {
       connection.release();
     }
   }
+
+  async updateUserLocation(
+    userId: number,
+    latitude: number,
+    longitude: number,
+  ) {
+    const sql =
+      'UPDATE users SET home_latitude = ?, home_longitude = ? WHERE id = ?';
+    await this.pool.query(sql, [latitude, longitude, userId]);
+  }
+
+  async getUserLocation(userId: number) {
+    const sql = 'SELECT home_latitude, home_longitude FROM users WHERE id = ?';
+    const [rows] = await this.pool.query(sql, [userId]);
+    return rows[0];
+  }
 }

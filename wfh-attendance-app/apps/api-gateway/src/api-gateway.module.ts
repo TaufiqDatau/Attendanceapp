@@ -8,23 +8,27 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     // Register the microservice clients
     ClientsModule.register([
       {
-        // This name is the injection token for the client
         name: 'AUTH_SERVICE',
         transport: Transport.TCP,
         options: {
-          // These should match the host and port of your auth-service
           host: 'localhost',
           port: 3001, // A common port for a secondary service
         },
       },
       {
-        // This name is the injection token for the client
         name: 'USER_SERVICE',
         transport: Transport.TCP,
         options: {
-          // These should match the host and port of your auth-service
           host: 'localhost',
           port: 3002, // A common port for a secondary service
+        },
+      },
+      {
+        name: 'ATTENDANCE_SERVICE',
+        transport: Transport.TCP,
+        options: {
+          host: 'localhost',
+          port: 3003, // A common port for a secondary service
         },
       },
     ]),

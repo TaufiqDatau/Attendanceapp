@@ -1,7 +1,8 @@
 // src/utils/apiFetch.ts
 
-// Define your API's base URL
-const BASE_URL = "https://api.yourdomain.com/v1";
+import Cookies from "js-cookie";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Custom error class for API-related errors.
@@ -16,8 +17,9 @@ export class ApiError extends Error {
   }
 }
 
-interface ApiFetchOptions extends RequestInit {
+interface ApiFetchOptions extends Omit<RequestInit, "body"> {
   auth?: boolean;
+  payload?: any;
 }
 
 /**
@@ -25,7 +27,11 @@ interface ApiFetchOptions extends RequestInit {
  * @returns {string | null} The JWT token or null if not found.
  */
 export const getToken = (): string | null => {
-  return localStorage.getItem("jwtToken");
+  const token = Cookies.get("access_token");
+  if (!token) {
+    return null;
+  }
+  return token;
 };
 
 /**
@@ -39,11 +45,10 @@ export const apiFetch = async <T>(
   endpoint: string,
   options: ApiFetchOptions = {}
 ): Promise<T> => {
-  const { auth = false, ...customConfig } = options;
+  const { auth = true, payload, ...customConfig } = options;
 
-  const headers: Record<string, any> = {
-    "Content-Type": "application/json",
-    ...customConfig.headers,
+  const headers: Record<string, string> = {
+    ...(customConfig.headers as Record<string, string>),
   };
 
   // If auth is true, get the token and add it to the headers.
@@ -57,14 +62,24 @@ export const apiFetch = async <T>(
   }
 
   const config: RequestInit = {
-    method: options.body ? "POST" : "GET",
+    method: options.method,
     ...customConfig,
     headers,
   };
 
-  if (options.body) {
-    config.body = JSON.stringify(options.body);
+  if (payload) {
+    if (payload instanceof FormData) {
+      // If the payload is FormData, let the browser set the Content-Type.
+      // Do NOT manually set 'Content-Type': 'multipart/form-data'.
+      config.body = payload;
+    } else {
+      // Otherwise, assume it's JSON.
+      headers["Content-Type"] = "application/json";
+      config.body = JSON.stringify(payload);
+    }
   }
+
+  config.headers = headers;
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, config);

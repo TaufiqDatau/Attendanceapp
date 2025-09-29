@@ -1,45 +1,63 @@
+import { createBrowserRouter } from "react-router-dom";
 import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import MainLayout from "@/layouts/EmployeeLayout/MainLayout";
 import AttendanceTracker from "@/pages/admin/dashboard/dashboard";
 import Attendance from "@/pages/attendance/Attendance";
 import HomePage from "@/pages/homepage/homepage";
 import Login from "@/pages/login/login";
-import { createBrowserRouter } from "react-router-dom";
+import ProtectedRoute from "@/components/auths/ProtectedRoute";
+import AdminRoute from "@/components/auths/AdminRoute";
+import PublicRoute from "@/components/auths/PublicRoute";
+
+// Import your new guard components
+
 export const router = createBrowserRouter([
-  // 1. Route for the login page (no header)
+  // 1. Routes for logged-in users (but not admins)
   {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/admin",
-    element: <AdminLayout />,
+    element: <ProtectedRoute />,
     children: [
       {
-        index: true,
-        element: <AttendanceTracker />,
+        path: "/",
+        element: <MainLayout />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+          },
+          {
+            path: "attendance",
+            element: <Attendance />,
+          },
+        ],
       },
     ],
   },
-  // 2. Layout route that includes the header
+
+  // 2. Routes specifically for admins
   {
-    path: "/",
-    element: <MainLayout />,
-    // 3. Child routes that will render inside the MainLayout's <Outlet />
+    element: <AdminRoute />,
     children: [
       {
-        index: true, // This matches the parent path "/"
-        element: <HomePage />,
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
+          {
+            index: true,
+            element: <AttendanceTracker />,
+          },
+        ],
       },
+    ],
+  },
+
+  // 3. Public route for the login page
+  {
+    element: <PublicRoute />,
+    children: [
       {
-        path: "attendance",
-        element: <Attendance />,
+        path: "/login",
+        element: <Login />,
       },
-      // {
-      //   path: "profile",
-      //   element: <ProfilePage />,
-      // },
-      // ...add other pages that need the header here
     ],
   },
 ]);

@@ -22,4 +22,38 @@ export class UsersServiceController {
       throw new Error('Failed to create user');
     }
   }
+
+  @MessagePattern('get_user_home_location')
+  async getUserHomeLocation(@Payload() userId: number) {
+    try {
+      const response =
+        await this.usersServiceService.getUserHomeLocation(userId);
+      return response;
+    } catch (error) {
+      console.error('Error getting user home location:', error);
+      throw new Error('Failed to get user home location');
+    }
+  }
+
+  @MessagePattern('update_user_home_location')
+  async updateUserHomeLocation(@Payload() payload: any) {
+    const { userId, latitude, longitude } = payload;
+    try {
+      await this.usersServiceService.updateUserHomeLocation(
+        userId,
+        latitude,
+        longitude,
+      );
+      return {
+        message: 'User location updated successfully',
+        data: {
+          latitude,
+          longitude,
+        },
+      };
+    } catch (error) {
+      console.error('Error updating user location:', error);
+      throw new Error('Failed to update user location');
+    }
+  }
 }

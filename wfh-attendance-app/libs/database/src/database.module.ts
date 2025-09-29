@@ -11,6 +11,8 @@ const dbProvider = {
   inject: [ConfigService], // Inject ConfigService to get credentials
   useFactory: async (configService: ConfigService) => {
     // useFactory creates and returns the connection pool
+    console.log('DB HOST', configService.get<string>('DB_HOST'));
+    console.log('DB PORT', configService.get<string>('DB_PORT'));
     const pool = mysql.createPool({
       host: configService.get<string>('DB_HOST'),
       port: configService.get<number>('DB_PORT'),

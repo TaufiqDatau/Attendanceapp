@@ -20,4 +20,27 @@ export class UsersServiceService {
       throw new Error('Failed to create user');
     }
   }
+
+  async updateUserHomeLocation(
+    userId: number,
+    latitude: number,
+    longitude: number,
+  ) {
+    try {
+      await this.userRepository.updateUserLocation(userId, latitude, longitude);
+      return { message: 'User location updated successfully' };
+    } catch (error) {
+      console.error('Error updating user location:', error);
+      throw new Error('Failed to update user location');
+    }
+  }
+
+  async getUserHomeLocation(userId: number) {
+    try {
+      return await this.userRepository.getUserLocation(userId);
+    } catch (error) {
+      console.error('Error getting user home location:', error);
+      throw new Error('Failed to get user home location');
+    }
+  }
 }

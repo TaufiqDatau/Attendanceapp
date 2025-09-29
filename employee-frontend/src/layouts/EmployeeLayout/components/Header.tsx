@@ -1,31 +1,54 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import Icon from "@/components/common/Icon";
-import { SettingsIcon } from "lucide-react";
+import { SettingsIcon, LogOutIcon } from "lucide-react";
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
-import React from "react";
+
+// 1. Update the DecodedToken interface to include the 'name' property
+interface DecodedToken {
+  name: string;
+  email: string;
+}
 
 const Header: React.FC<{}> = () => {
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = Cookies.get("access_token");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<DecodedToken>(token);
+        // 2. Directly use the 'name' field from the token
+        setUserName(decodedToken.name);
+      } catch (error) {
+        console.error("Failed to decode token:", error);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    Cookies.remove("access_token");
+    navigate("/login");
+  };
+
   const items: MenuProps["items"] = [
+    { key: "1", label: "My Account", disabled: true },
+    { key: "2", label: "Profile", extra: "⌘P" },
+    { key: "4", label: "Settings", icon: <SettingsIcon />, extra: "⌘S" },
+    { type: "divider" },
     {
-      key: "1",
-      label: "My Account",
-      disabled: true,
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "2",
-      label: "Profile",
-      extra: "⌘P",
-    },
-    {
-      key: "4",
-      label: "Settings",
-      icon: <SettingsIcon />,
-      extra: "⌘S",
+      key: "logout",
+      label: "Logout",
+      icon: <LogOutIcon size={16} />,
+      danger: true,
+      onClick: handleLogout,
     },
   ];
+
   return (
     <header className="flex justify-between items-center mb-8">
       <div className="flex items-center gap-4">
@@ -42,7 +65,7 @@ const Header: React.FC<{}> = () => {
         </Dropdown>
         <div>
           <h1 className="text-xl font-bold text-text-light dark:text-text-dark">
-            Hi, Sarah
+            Hi, {userName || "User"}
           </h1>
           <p className="text-sm text-subtext-light dark:text-subtext-dark">
             Welcome back!
