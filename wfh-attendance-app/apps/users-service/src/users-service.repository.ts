@@ -4,6 +4,7 @@ import { User } from 'apps/auth-service/src/interface/user.interface';
 import { Register } from 'apps/users-service/src/interface/register.interface';
 import { ResultSetHeader, type Pool } from 'mysql2/promise';
 import * as bcrypt from 'bcrypt'; // 👈 1. Import bcrypt
+import { getAllUserRequest } from 'apps/users-service/src/interface/users.interface';
 
 @Injectable()
 export class UserRepository {
@@ -25,17 +26,18 @@ export class UserRepository {
       email, 
       birth_date,
       birth_place,
-      full_address,
-      phone_number ) 
+      phone_number,
+      full_address
+      ) 
       VALUES (?, ?, ?, ?,?,?,?)
     `;
       const [userResult] = await connection.query<ResultSetHeader>(userSql, [
         user.firstName,
         user.lastName,
         user.email,
-        user.phoneNumber,
         user.birthDate,
         user.birthPlace,
+        user.phoneNumber,
         user.fullAddress,
       ]);
 
@@ -75,6 +77,24 @@ export class UserRepository {
       // 7. ALWAYS release the connection back to the pool
       connection.release();
     }
+  }
+
+  async getAllUsers(body: getAllUserRequest) {
+    const { page, limit } = body;
+    const offset = (page - 1) * limit;
+    const sql = 'SELECT * FROM users LIMIT ? OFFSET ?';
+    const [rows] = await this.pool.query(sql, [limit, offset]);
+    const count = await this.pool.query('SELECT COUNT(*) as count FROM users');
+    const response = {
+      data: rows,
+      total: count[0],
+      page,
+      limit,
+    };
+
+    console.log(response);
+
+    return response;
   }
 
   async updateUserLocation(

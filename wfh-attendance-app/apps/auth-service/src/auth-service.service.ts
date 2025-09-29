@@ -21,6 +21,17 @@ export class AuthService {
     }
   }
 
+  async validateRole(token: string, role: string) {
+    try {
+      const decodedUser = await this.jwtService.verifyAsync(token);
+      return decodedUser.roles.some((r) => r.name === role); // Return the user payload on success
+    } catch (error) {
+      // Return null or throw an RpcException for the gateway to handle
+      console.error('Token validation failed:', error.message);
+      return null;
+    }
+  }
+
   async login(email: string, pass: string) {
     const user = await this.authRepository.findUserByEmail(email);
 

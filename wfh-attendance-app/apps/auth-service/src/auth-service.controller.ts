@@ -11,6 +11,11 @@ export class AuthServiceController {
     return this.authService.validateToken(data.jwt);
   }
 
+  @MessagePattern({ cmd: 'validate_role' })
+  validateRole(@Payload() data: { jwt: string; role: string }) {
+    return this.authService.validateRole(data.jwt, data.role);
+  }
+
   @MessagePattern({ cmd: 'login' })
   login(@Payload() credentials: any) {
     return this.authService.login(credentials.email, credentials.password);

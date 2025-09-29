@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
   Post,
   Put,
@@ -19,9 +20,11 @@ import { LoginDto } from 'apps/api-gateway/src/dto/login.dto';
 import { firstValueFrom } from 'rxjs';
 import { RegisterDto } from 'apps/api-gateway/src/dto/register.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CheckInDto } from 'apps/api-gateway/src/dto/checkin.dto';
+import { CheckInDto, CheckOutDto } from 'apps/api-gateway/src/dto/checkin.dto';
 import { AuthGuard } from 'apps/api-gateway/src/auth/auth.guard';
 import { HomeLocationDto } from 'apps/api-gateway/src/dto/homeLocation.dto';
+import { Roles } from 'apps/api-gateway/src/auth/roles.decorator';
+import { GetUsersDto } from 'apps/api-gateway/src/dto/getUsers.dto';
 
 @Controller()
 export class ApiGatewayController {
@@ -39,10 +42,20 @@ export class ApiGatewayController {
     return await firstValueFrom(response);
   }
 
+  @UseGuards(AuthGuard)
+  @Roles('Admin')
   @Post('auth/register')
   async register(@Body() registerDTO: RegisterDto) {
     console.log(registerDTO);
     const response = this.userClient.send('register_user', registerDTO);
+    return await firstValueFrom(response);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('users')
+  async getAllUsers(@Req() req: any, @Body() body: GetUsersDto) {
+    console.log(body);
+    const response = this.userClient.send('get_all_users', body);
     return await firstValueFrom(response);
   }
 
@@ -87,7 +100,6 @@ export class ApiGatewayController {
     const uploadData = await firstValueFrom(uploadObservable);
     const objectName = uploadData.objectName;
 
-    // Now, try to perform the check-in
     try {
       const checkInObservable = this.attendanceClient.send(
         { cmd: 'check_in_employee' },
@@ -115,10 +127,44 @@ export class ApiGatewayController {
   }
 
   @UseGuards(AuthGuard)
+  @Post('checkout')
+  async checkOut(@Body() checkOutDto: CheckOutDto, @Req() req: any) {
+    const userId = req.user.id;
+    const { latitude, longitude } = checkOutDto;
+    const response = this.attendanceClient.send(
+      { cmd: 'check_out_employee' },
+      {
+        id: userId,
+        latitude: latitude,
+        longitude: longitude,
+      },
+    );
+    return await firstValueFrom(response);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('user/home-location')
   async getUserHomeLocation(@Req() req: any) {
     const userId = req.user.id;
     const response = this.userClient.send('get_user_home_location', userId);
+    return await firstValueFrom(response);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('attendance-status/:currentDate')
+  async getAttendanceHistory(
+    @Req() req: any,
+    @Param('currentDate') currentDate: string,
+  ) {
+    const userId = req.user.id;
+
+    const response = this.attendanceClient.send(
+      { cmd: 'get_attendance_status' },
+      {
+        id: userId,
+        date: currentDate,
+      },
+    );
     return await firstValueFrom(response);
   }
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const LogoIcon: React.FC = () => (
   <div className="h-6 w-6 text-primary">
@@ -13,51 +14,54 @@ const LogoIcon: React.FC = () => (
   </div>
 );
 
-const AdminHeader: React.FC = () => (
-  <header className="flex items-center justify-between whitespace-nowrap border-b border-primary/20 px-10 py-3">
-    <div className="flex items-center gap-4 text-slate-900 dark:text-white">
-      <LogoIcon />
-      <h2 className="text-lg font-bold">Attendance Tracker</h2>
-    </div>
-    <div className="flex flex-1 items-center justify-end gap-6">
-      <nav className="flex items-center gap-6">
-        <a
-          className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary"
-          href="#"
-        >
-          Dashboard
-        </a>
-        <a
-          className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary"
-          href="#"
-        >
-          Employees
-        </a>
-        <a
-          className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary"
-          href="#"
-        >
-          Reports
-        </a>
-      </nav>
-      <div className="h-6 w-px bg-primary/20"></div>
-      <div className="flex items-center gap-4">
-        <button className="flex h-10 items-center justify-center rounded bg-primary px-4 text-sm font-bold text-white">
-          Add Employee
-        </button>
-        <button className="flex h-10 items-center justify-center rounded border border-primary/30 bg-primary/10 px-4 text-sm font-bold text-primary dark:bg-primary/20">
-          Edit Attendance
-        </button>
-        <div
-          className="h-10 w-10 rounded-full bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url("https://i.pravatar.cc/150?u=a042581f4e29026704d")',
-          }}
-        ></div>
+const AdminHeader: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <header className="flex items-center justify-between whitespace-nowrap border-b border-primary/20 px-10 py-3">
+      <div className="flex items-center gap-4 text-slate-900 dark:text-white">
+        <LogoIcon />
+        <h2 className="text-lg font-bold">Attendance Tracker</h2>
       </div>
-    </div>
-  </header>
-);
+      <div className="flex flex-1 items-center justify-end gap-6">
+        <nav className="flex items-center gap-6">
+          <a
+            className="text-sm pointer-events-none font-medium text-slate-600 hover:text-primary "
+            onClick={() => navigate("/admin")}
+          >
+            Dashboard
+          </a>
+          <a
+            className="text-sm pointer-events-none  font-medium text-slate-600 hover:text-primary "
+            onClick={() => navigate("/admin/employee")}
+          >
+            Employees
+          </a>
+          <a
+            className="text-sm font-medium text-slate-600 hover:text-primary "
+            onClick={() => navigate("/admin/attendance")}
+          >
+            Attendance
+          </a>
+        </nav>
+        <div className="h-6 w-px bg-primary/20"></div>
+        <div className="flex items-center gap-4">
+          <button className="flex h-10 items-center justify-center rounded bg-primary px-4 text-sm font-bold text-white">
+            Add Employee
+          </button>
+          <button className="flex h-10 items-center justify-center rounded border border-primary/30 bg-primary/10 px-4 text-sm font-bold text-primary dark:bg-primary/20">
+            Edit Attendance
+          </button>
+          <div
+            className="h-10 w-10 rounded-full bg-cover bg-center"
+            style={{
+              backgroundImage:
+                'url("https://i.pravatar.cc/150?u=a042581f4e29026704d")',
+            }}
+          ></div>
+        </div>
+      </div>
+    </header>
+  );
+};
 
 export default AdminHeader;

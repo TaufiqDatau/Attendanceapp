@@ -88,7 +88,17 @@ const LoginForm: React.FC = () => {
       </div>
 
       {/* Disable button while loading and show a loading message */}
-      <Button onClick={handleLogin} disabled={isLoading}>
+      <Button
+        onClick={handleLogin}
+        disabled={isLoading}
+        className={`
+    bg-indigo-600 font-semibold text-white shadow-lg
+    hover:bg-indigo-700
+    focus:ring-indigo-500
+    disabled:bg-indigo-400 disabled:cursor-wait
+    ${isLoading ? "animate-pulse" : ""}
+  `}
+      >
         {isLoading ? "Logging in..." : "Login"}
       </Button>
     </main>

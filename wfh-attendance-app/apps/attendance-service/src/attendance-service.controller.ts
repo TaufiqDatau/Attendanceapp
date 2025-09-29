@@ -6,7 +6,12 @@ import type {
 } from 'apps/attendance-service/src/interface/file.interface';
 import { MinioService } from 'apps/attendance-service/src/module/minio-client.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import type { CheckInEmployee } from 'apps/attendance-service/src/interface/checkin.interface';
+import type {
+  CheckInEmployee,
+  checkOutEmployee,
+} from 'apps/attendance-service/src/interface/checkin.interface';
+import { CheckOutDto } from 'apps/api-gateway/src/dto/checkin.dto';
+import type { AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
 // Define the shape of the data coming from other services
 
 @Controller()
@@ -49,5 +54,19 @@ export class AttendanceServiceController {
     const checkIn =
       await this.attendanceServiceService.checkInEmployee(payload);
     return { checkIn };
+  }
+
+  @MessagePattern({ cmd: 'check_out_employee' })
+  async checkOut(@Payload() payload: checkOutEmployee) {
+    const checkOut =
+      await this.attendanceServiceService.checkOutEmployee(payload);
+    return { checkOut };
+  }
+
+  @MessagePattern({ cmd: 'get_attendance_status' })
+  async getAttendanceHistory(@Payload() payload: AttendanceStatusRequest) {
+    const attendanceHistory =
+      await this.attendanceServiceService.getAttendanceStatus(payload);
+    return { attendanceHistory };
   }
 }

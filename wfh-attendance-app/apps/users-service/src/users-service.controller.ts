@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UsersServiceService } from './users-service.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import type { Register } from 'apps/users-service/src/interface/register.interface';
+import type { getAllUserRequest } from 'apps/users-service/src/interface/users.interface';
 
 @Controller()
 export class UsersServiceController {
@@ -13,13 +14,24 @@ export class UsersServiceController {
   }
 
   @MessagePattern('register_user')
-  async createUser(@Payload() registerData: any) {
+  async createUser(@Payload() registerData: Register) {
     try {
       await this.usersServiceService.createUser(registerData);
       return { message: 'User created successfully' };
     } catch (error) {
       console.error('Error creating user:', error);
       throw new Error('Failed to create user');
+    }
+  }
+
+  @MessagePattern('get_all_users')
+  async getAllUsers(@Payload() body: getAllUserRequest) {
+    try {
+      const response = await this.usersServiceService.getAllUsers(body);
+      return response;
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      throw new Error('Failed to get all users');
     }
   }
 

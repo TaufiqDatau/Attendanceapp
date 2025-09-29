@@ -4,3 +4,9 @@ export interface CheckInEmployee {
   longitude: number;
   object_name: string;
 }
+
+export interface checkOutEmployee {
+  id: number;
+  latitude: number;
+  longitude: number;
+}

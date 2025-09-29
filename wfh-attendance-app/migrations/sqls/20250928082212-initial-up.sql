@@ -66,7 +66,7 @@ CREATE TABLE `user_roles` (
   PRIMARY KEY (`user_id`, `role_id`)
 );
 
-CREATE UNIQUE INDEX `attendance_index_0` ON `attendance` (`user_id`, `attendance_date`);
+CREATE UNIQUE INDEX `attendance_index_0` ON `attendance` (`user_id`, `attendance_date`, `action`);
 
 ALTER TABLE `auth` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 

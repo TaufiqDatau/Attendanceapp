@@ -1,27 +1,123 @@
 import Button from "@/components/common/Button";
-import Icon from "@/components/common/Icon";
+import type { Coordinates } from "@/pages/attendance/interface/coordinates";
 import AttendanceInfo from "@/pages/homepage/Components/AttendanceInfo";
 import QuickActionsSection from "@/pages/homepage/Components/QuickActions";
-import React from "react";
+import { apiFetch } from "@/utils/FetchHelper";
+import { fetchLocation } from "@/utils/LocationHelper";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+const MAX_LOCATION_RETRIES = 3;
+
+interface AttedanceStatus {
+  checkIn: string | null;
+  checkOut: string | null;
+}
 
 const CheckInOutButtons: React.FC<{}> = () => {
   const navigate = useNavigate();
+  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
+  const [attendanceStatus, setAttendanceStatus] = useState<AttedanceStatus>({
+    checkIn: null,
+    checkOut: null,
+  });
+  const [isAttendanceStatusLoading, setIsAttendanceStatusLoading] =
+    useState(false);
+  const [_, setLocationError] = useState<string>("");
+
+  useEffect(() => {
+    setIsAttendanceStatusLoading(true);
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // getMonth() is 0-indexed, so we add 1
+    const day = String(today.getDate()).padStart(2, "0");
+    const dateNow = `${year}-${month}-${day}`; // Formats to "YYYY-MM-DD"
+
+    setIsAttendanceStatusLoading(true);
+
+    apiFetch(`/attendance-status/${dateNow}`, {
+      method: "GET",
+      auth: true,
+    })
+      .then((res: any) => {
+        setAttendanceStatus({
+          checkIn: res.attendanceHistory.checkIn,
+          checkOut: res.attendanceHistory.checkOut,
+        });
+      })
+      .finally(() => setIsAttendanceStatusLoading(false));
+  }, []);
 
   const handleCheckIn = () => {
+    if (isAttendanceStatusLoading || attendanceStatus.checkIn) {
+      return;
+    }
     navigate("/attendance");
+  };
+
+  const handleCheckOut = async () => {
+    if (isAttendanceStatusLoading || attendanceStatus.checkOut) {
+      return;
+    }
+    await fetchLocation(MAX_LOCATION_RETRIES, setCoordinates, setLocationError);
+
+    apiFetch("/checkout", {
+      method: "POST",
+      auth: true,
+      payload: {
+        latitude: coordinates?.lat.toString(),
+        longitude: coordinates?.lon.toString(),
+      },
+    })
+      .then((res: any) => {
+        console.log(res);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-      <Button onClick={handleCheckIn}>Check-in</Button>
+      <Button
+        disabled={isAttendanceStatusLoading || !!attendanceStatus.checkIn}
+        onClick={handleCheckIn}
+        className={`
+          bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500
+          disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed
+        `}
+      >
+        {attendanceStatus.checkIn
+          ? `Checked in: ${new Date(
+              attendanceStatus.checkIn
+            ).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })}`
+          : "Check-in"}
+      </Button>
 
       <Button
-        onClick={() => {
-          console.log("checkout");
-        }}
-        className="bg-red-200 text-red-500"
+        disabled={
+          isAttendanceStatusLoading ||
+          !attendanceStatus.checkIn ||
+          !!attendanceStatus.checkOut
+        }
+        onClick={handleCheckOut}
+        className={`
+          bg-rose-600 hover:bg-rose-700 focus:ring-rose-500
+          disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed
+        `}
       >
-        Check-Out
+        {attendanceStatus.checkOut
+          ? `Checked out: ${new Date(
+              attendanceStatus.checkOut
+            ).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })}`
+          : "Check-Out"}
       </Button>
     </div>
   );
@@ -40,44 +136,6 @@ const ProgressSection: React.FC<{}> = () => {
 };
 
 //============================================================================
-// ## Footer Navigation Component
-// The main navigation bar at the bottom of the screen.
-//============================================================================
-interface NavItemProps {
-  iconName: string;
-  label: string;
-  isActive?: boolean;
-}
-
-const NavItem: React.FC<NavItemProps> = ({
-  iconName,
-  label,
-  isActive = false,
-}) => {
-  const activeClass = isActive
-    ? "text-primary"
-    : "text-subtext-light dark:text-subtext-dark";
-  return (
-    <a href="#" className={`text-center ${activeClass}`}>
-      <Icon name={iconName} />
-      <span className="block text-xs font-medium">{label}</span>
-    </a>
-  );
-};
-
-const FooterNav: React.FC<{}> = () => {
-  return (
-    <footer className="bg-card-light dark:bg-card-dark shadow-t-lg fixed bottom-0 w-full md:relative">
-      <nav className="flex justify-around p-4">
-        <NavItem iconName="home" label="Home" isActive={true} />
-        <NavItem iconName="email" label="Requests" />
-        <NavItem iconName="person" label="Profile" />
-      </nav>
-    </footer>
-  );
-};
-
-//============================================================================
 // ## Main Home Page Component
 // This component assembles all the smaller components into the final page.
 //============================================================================
@@ -92,7 +150,6 @@ const HomePage: React.FC<{}> = () => {
             <QuickActionsSection />
           </main>
         </div>
-        <FooterNav />
       </div>
     </div>
   );

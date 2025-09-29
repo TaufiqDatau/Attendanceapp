@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { AttendanceServiceController } from './attendance-service.controller';
 import { AttendanceService } from './attendance-service.service';
 import { DatabaseModule } from '@app/database';

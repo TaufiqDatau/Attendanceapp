@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AttendanceServiceRepository } from 'apps/attendance-service/src/attendance-service.repository';
-import { CheckInEmployee } from 'apps/attendance-service/src/interface/checkin.interface';
+import { AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
+import {
+  CheckInEmployee,
+  checkOutEmployee,
+} from 'apps/attendance-service/src/interface/checkin.interface';
 
 @Injectable()
 export class AttendanceService {
@@ -19,6 +23,24 @@ export class AttendanceService {
       employeeData.object_name,
     );
 
+    console.log('succesfully added attendance', data);
+    return data;
+  }
+
+  async checkOutEmployee(checkoutData: checkOutEmployee) {
+    const data = await this.attendanceRepository.checkOutUser(
+      checkoutData.id,
+      checkoutData.latitude,
+      checkoutData.longitude,
+    );
+    console.log('succesfully added attendance', data);
+    return data;
+  }
+
+  async getAttendanceStatus(attendanceStatusRequest: AttendanceStatusRequest) {
+    const data = await this.attendanceRepository.getAttendanceStatus(
+      attendanceStatusRequest,
+    );
     console.log('succesfully added attendance', data);
     return data;
   }
