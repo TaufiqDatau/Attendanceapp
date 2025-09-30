@@ -23,9 +23,6 @@ ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 # Build the application for production
 RUN pnpm run build
 
-# ---
-
-# Stage 2: Serve the application with Nginx
 # This uses the default Nginx image, also based on Debian
 FROM nginx:stable
 

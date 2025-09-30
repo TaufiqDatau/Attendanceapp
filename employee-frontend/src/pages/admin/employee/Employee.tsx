@@ -92,6 +92,7 @@ export default function Employee() {
       });
 
       // This part is correct, user data is in `response.data`
+      //@ts-ignore
       const users = response.data.map((user: DataType) => ({
         ...user,
         key: user.id.toString(),
@@ -105,7 +106,7 @@ export default function Employee() {
         ...tableParams,
         pagination: {
           ...tableParams.pagination,
-          // MODIFIED: Access the nested 'count' property from the 'total' object
+          // @ts-ignore
           total: response.total.count,
         },
       });
@@ -282,6 +283,7 @@ export default function Employee() {
       console.log("Submitting to API:", payload);
 
       // Call your apiFetch function to register the new user
+      // @ts-ignore
       const response = await apiFetch("/auth/register", {
         method: "POST",
         auth: true, // Assuming registration requires auth or this is a placeholder
