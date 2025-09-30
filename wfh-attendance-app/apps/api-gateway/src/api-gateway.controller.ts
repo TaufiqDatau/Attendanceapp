@@ -37,7 +37,7 @@ export class ApiGatewayController {
     @Inject('ATTENDANCE_SERVICE')
     private readonly attendanceClient: ClientProxy,
     private readonly apiGatewayService: ApiGatewayService,
-  ) { }
+  ) {}
 
   @Post('auth/login')
   async login(@Body() loginDto: LoginDto) {
@@ -194,7 +194,10 @@ export class ApiGatewayController {
   @Get('attendance-proof/:object_name')
   async getImageProof(@Param('object_name') objectName: string) {
     console.log(objectName);
-    const response = this.attendanceClient.send('get_attendance_proof', objectName);
+    const response = this.attendanceClient.send(
+      'get_attendance_proof',
+      objectName,
+    );
     return await firstValueFrom(response);
   }
 }

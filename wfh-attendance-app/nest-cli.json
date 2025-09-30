@@ -54,15 +54,6 @@
       "compilerOptions": {
         "tsConfigPath": "apps/users-service/tsconfig.app.json"
       }
-    },
-    "wfh-attendance-app": {
-      "type": "application",
-      "root": "apps/wfh-attendance-app",
-      "entryFile": "main",
-      "sourceRoot": "apps/wfh-attendance-app/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/wfh-attendance-app/tsconfig.app.json"
-      }
     }
   }
 }
