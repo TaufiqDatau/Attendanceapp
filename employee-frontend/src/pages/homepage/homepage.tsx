@@ -16,7 +16,7 @@ interface AttedanceStatus {
 
 const CheckInOutButtons: React.FC<{}> = () => {
   const navigate = useNavigate();
-  const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
+  const [, setCoordinates] = useState<Coordinates | null>(null);
   const [attendanceStatus, setAttendanceStatus] = useState<AttedanceStatus>({
     checkIn: null,
     checkOut: null,
@@ -24,28 +24,41 @@ const CheckInOutButtons: React.FC<{}> = () => {
   const [isAttendanceStatusLoading, setIsAttendanceStatusLoading] =
     useState(false);
   const [_, setLocationError] = useState<string>("");
+  const fetchAttendanceStatus = async () => {
+    setIsAttendanceStatusLoading(true);
+
+    try {
+      // Get today's date in YYYY-MM-DD format
+      const today = new Date();
+      const dateNow = today.toISOString().split("T")[0]; // A simpler way to get "YYYY-MM-DD"
+
+      // Fetch the data and wait for the response
+      const res = await apiFetch<{
+        attendanceHistory: {
+          checkIn: string | null;
+          checkOut: string | null;
+        };
+      }>(`/attendance-status/${dateNow}`, {
+        method: "GET",
+        auth: true,
+      });
+
+      // Update the attendance status state with the fetched data
+      setAttendanceStatus({
+        checkIn: res.attendanceHistory.checkIn,
+        checkOut: res.attendanceHistory.checkOut,
+      });
+    } catch (error) {
+      console.error("Failed to fetch attendance status:", error);
+      // You could also set an error state here if needed
+    } finally {
+      // This block runs whether the fetch succeeded or failed
+      setIsAttendanceStatusLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setIsAttendanceStatusLoading(true);
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0"); // getMonth() is 0-indexed, so we add 1
-    const day = String(today.getDate()).padStart(2, "0");
-    const dateNow = `${year}-${month}-${day}`; // Formats to "YYYY-MM-DD"
-
-    setIsAttendanceStatusLoading(true);
-
-    apiFetch(`/attendance-status/${dateNow}`, {
-      method: "GET",
-      auth: true,
-    })
-      .then((res: any) => {
-        setAttendanceStatus({
-          checkIn: res.attendanceHistory.checkIn,
-          checkOut: res.attendanceHistory.checkOut,
-        });
-      })
-      .finally(() => setIsAttendanceStatusLoading(false));
+    fetchAttendanceStatus();
   }, []);
 
   const handleCheckIn = () => {
@@ -59,22 +72,42 @@ const CheckInOutButtons: React.FC<{}> = () => {
     if (isAttendanceStatusLoading || attendanceStatus.checkOut) {
       return;
     }
-    await fetchLocation(MAX_LOCATION_RETRIES, setCoordinates, setLocationError);
 
-    apiFetch("/checkout", {
-      method: "POST",
-      auth: true,
-      payload: {
-        latitude: coordinates?.lat.toString(),
-        longitude: coordinates?.lon.toString(),
-      },
-    })
-      .then((res: any) => {
-        console.log(res);
+    try {
+      setLocationError(""); // Clear any previous errors
+
+      // 1. Await the promise to get the actual coordinates
+      const fetchedCoordinates = await fetchLocation(MAX_LOCATION_RETRIES);
+
+      // 2. (Optional but good practice) Update the component's state
+      setCoordinates(fetchedCoordinates);
+
+      // 3. Use the newly fetched coordinates directly for the API call
+      await apiFetch("/checkout", {
+        method: "POST",
+        auth: true,
+        payload: {
+          latitude: fetchedCoordinates.lat.toString(),
+          longitude: fetchedCoordinates.lon.toString(),
+        },
       })
-      .catch((error) => {
-        console.log(error);
-      });
+        .then((res: any) => {
+          console.log("API Response:", res);
+          fetchAttendanceStatus();
+        })
+        .catch((apiError) => {
+          console.log("API Error:", apiError);
+          // Handle API error
+        });
+    } catch (error) {
+      // This will catch any errors from fetchLocation
+      console.error(error);
+      if (error instanceof Error) {
+        setLocationError(error.message);
+      } else {
+        setLocationError("An unknown error occurred while fetching location.");
+      }
+    }
   };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -88,12 +121,12 @@ const CheckInOutButtons: React.FC<{}> = () => {
       >
         {attendanceStatus.checkIn
           ? `Checked in: ${new Date(
-            attendanceStatus.checkIn
-          ).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          })}`
+              attendanceStatus.checkIn
+            ).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })}`
           : "Check-in"}
       </Button>
 
@@ -111,12 +144,12 @@ const CheckInOutButtons: React.FC<{}> = () => {
       >
         {attendanceStatus.checkOut
           ? `Checked out: ${new Date(
-            attendanceStatus.checkOut
-          ).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          })}`
+              attendanceStatus.checkOut
+            ).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })}`
           : "Check-Out"}
       </Button>
     </div>

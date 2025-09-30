@@ -31,8 +31,32 @@ export default function Attendance(): React.ReactElement {
   };
 
   useEffect(() => {
-    fetchLocation(MAX_LOCATION_RETRIES, setCoords, setLocationError);
-    console.log(coords);
+    const getLocation = async () => {
+      try {
+        setLocationError(""); // Clear previous errors on a new attempt
+
+        // 1. Await the result from your new promise-based function
+        const fetchedCoords = await fetchLocation(MAX_LOCATION_RETRIES);
+
+        // 2. Set state with the successful result
+        setCoords(fetchedCoords);
+        console.log("Location fetched successfully:", fetchedCoords);
+      } catch (error) {
+        console.error("Failed to fetch location:", error);
+        setCoords(null); // Ensure coords are null on error
+
+        // 3. Set the error state if the promise rejects
+        if (error instanceof Error) {
+          setLocationError(error.message);
+        } else {
+          setLocationError(
+            "An unknown error occurred while fetching location."
+          );
+        }
+      }
+    };
+
+    getLocation(); // Call the async function
   }, [locationRefreshTrigger]);
 
   useEffect(() => {

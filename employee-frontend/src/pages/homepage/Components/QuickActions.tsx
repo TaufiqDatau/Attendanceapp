@@ -42,10 +42,10 @@ interface ActionType {
 }
 
 const Action: ActionType[] = [
-  {
-    iconName: "calendar",
-    label: "Leave Request",
-  },
+  // {
+  //   iconName: "calendar",
+  //   label: "Leave Request",
+  // },
   {
     iconName: "calendar_days",
     label: "Attendance History",

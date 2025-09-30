@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import MainLayout from "@/layouts/EmployeeLayout/MainLayout";
-import AttendanceTracker from "@/pages/admin/dashboard/dashboard";
+// import AttendanceTracker from "@/pages/admin/dashboard/dashboard";
 import Attendance from "@/pages/attendance/Attendance";
 import HomePage from "@/pages/homepage/homepage";
 import Login from "@/pages/login/login";
@@ -43,17 +43,17 @@ export const router = createBrowserRouter([
         path: "/admin",
         element: <AdminLayout />,
         children: [
+          // {
+          //   index: true,
+          //   element: <AttendanceTracker />,
+          // },
           {
             index: true,
-            element: <AttendanceTracker />,
+            element: <AttendancePage />,
           },
           {
             path: "employee",
             element: <Employee />,
-          },
-          {
-            path: "attendance",
-            element: <AttendancePage />,
           },
         ],
       },
