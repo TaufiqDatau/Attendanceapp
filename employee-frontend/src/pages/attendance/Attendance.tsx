@@ -32,12 +32,13 @@ export default function Attendance(): React.ReactElement {
 
   useEffect(() => {
     fetchLocation(MAX_LOCATION_RETRIES, setCoords, setLocationError);
+    console.log(coords);
   }, [locationRefreshTrigger]);
 
   useEffect(() => {
     //Get user home location
     apiFetch("/user/home-location").then((res: any) => {
-      if (res) {
+      if (res.home_latitude && res.home_longitude) {
         setArea({
           center: [res.home_latitude, res.home_longitude],
           radius: 50,
@@ -84,7 +85,7 @@ export default function Attendance(): React.ReactElement {
     if (!selectedCoords) return;
 
     const res = await updateUserLocation(selectedCoords);
-    if (res.data) {
+    if (res.data.latitude && res.data.longitude) {
       setArea({
         center: [res.data.latitude, res.data.longitude],
         radius: 50,
@@ -101,6 +102,7 @@ export default function Attendance(): React.ReactElement {
         handleRetry={handleRetryLocation}
         area={area}
       />
+
       <MapComponent designatedArea={area} userLocation={coords} />
 
       {!area && (

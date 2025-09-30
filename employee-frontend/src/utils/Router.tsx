@@ -9,7 +9,7 @@ import ProtectedRoute from "@/components/auths/ProtectedRoute";
 import AdminRoute from "@/components/auths/AdminRoute";
 import PublicRoute from "@/components/auths/PublicRoute";
 import Employee from "@/pages/admin/employee/Employee";
-import AttendancePage from "@/pages/admin/attendance/Attendance";
+import AttendancePage from "@/pages/admin/attendance/AttendancesDashboard";
 
 // Import your new guard components
 

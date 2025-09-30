@@ -11,6 +11,7 @@ import {
 } from "antd";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { apiFetch } from "@/utils/FetchHelper";
+import moment from "moment";
 
 // --- 1. TYPE DEFINITIONS ---
 interface AttendanceRecord {
@@ -27,46 +28,19 @@ interface AttendanceRecord {
 }
 
 interface ApiResponse {
-  data: Omit<AttendanceRecord, "key" | "status">[]; // Raw data from API
-  totalItem: number;
-  currentPage: number;
+  attendanceHistoryAll: {
+    data: Omit<AttendanceRecord, "key" | "status">[]; // Raw data from API
+    totalItem: number;
+    currentPage: number;
+  }
 }
 
-const fullMockData = Array.from({ length: 25 }, (_, i) => {
-  const userId = 101 + (i % 5);
-  const date = new Date("2025-09-30");
-  date.setDate(date.getDate() - Math.floor(i / 5));
-  const dateString = date.toISOString().split("T")[0];
-  const hasCheckout = i % 2 === 0;
-
-  return {
-    user_id: userId,
-    full_name: `User Name ${userId}`,
-    email: `user.${userId}@example.com`,
-    attendance_date: dateString,
-    checkin_time: `${dateString}T08:${String(i % 60).padStart(2, "0")}:00Z`,
-    checkin_object_name: `img_checkin_${userId}_${dateString.replace(/-/g, "")}.jpg`,
-    checkout_time: hasCheckout
-      ? `${dateString}T17:${String(i % 60).padStart(2, "0")}:00Z`
-      : null,
-    checkout_object_name: hasCheckout
-      ? `img_checkout_${userId}_${dateString.replace(/-/g, "")}.jpg`
-      : null,
-  };
-});
 
 
-// Simulates fetching an image URL
-const fetchImageUrl = (objectName: string): Promise<string> => {
-  console.log(`Fetching image URL for: ${objectName}`);
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(`https://placehold.co/600x400?text=Proof\\n${objectName}`);
-    }, 500);
-  });
+const fetchImageUrl = async (objectName: string): Promise<{ imageProof: string }> => {
+  return await apiFetch(`/attendance-proof/${objectName}`, { method: "GET", auth: true });
 };
 
-// --- 3. THE REACT COMPONENT ---
 const AttendancePage: React.FC = () => {
   const [data, setData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -102,7 +76,7 @@ const AttendancePage: React.FC = () => {
       });
 
       // The rest of your logic can now run sequentially
-      const processedData: AttendanceRecord[] = response.data.map(
+      const processedData: AttendanceRecord[] = response.attendanceHistoryAll.data.map(
         (record) => ({
           ...record,
           key: `${record.user_id}-${record.attendance_date}`,
@@ -114,10 +88,11 @@ const AttendancePage: React.FC = () => {
       );
 
       setData(processedData);
+      console.log(data)
       setPagination((prev) => ({
         ...prev,
-        total: response.totalItem,
-        current: response.currentPage,
+        total: response.attendanceHistoryAll.totalItem,
+        current: response.attendanceHistoryAll.currentPage,
       }));
 
     } catch (error) {
@@ -146,7 +121,13 @@ const AttendancePage: React.FC = () => {
     setIsImageLoading(true);
     setIsModalVisible(true);
     try {
-      const url = await fetchImageUrl(objectName);
+      const res = await fetchImageUrl(objectName);
+      if (!res) {
+        message.error("Failed to load image.");
+        setIsModalVisible(false);
+        return;
+      }
+      const url = res.imageProof;
       setImageUrl(url);
     } catch (error) {
       message.error("Failed to load image.");
@@ -176,6 +157,7 @@ const AttendancePage: React.FC = () => {
       title: "Date",
       dataIndex: "attendance_date",
       key: "date",
+      render: (date) => moment(date).format("YYYY-MM-DD"),
     },
     {
       title: "Status",

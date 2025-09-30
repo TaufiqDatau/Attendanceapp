@@ -188,4 +188,13 @@ export class ApiGatewayController {
 
     return await firstValueFrom(response);
   }
+
+  @UseGuards(AuthGuard)
+  @Roles('Admin')
+  @Get('attendance-proof/:object_name')
+  async getImageProof(@Param('object_name') objectName: string) {
+    console.log(objectName);
+    const response = this.attendanceClient.send('get_attendance_proof', objectName);
+    return await firstValueFrom(response);
+  }
 }

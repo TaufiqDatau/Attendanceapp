@@ -76,4 +76,10 @@ export class AttendanceServiceController {
       await this.attendanceServiceService.getAttendanceHistoryAll(payload);
     return { attendanceHistoryAll };
   }
+
+  @MessagePattern("get_attendance_proof")
+  async getImageProof(@Payload() payload: string) {
+    const imageProof = await this.fileService.getFileUrl(payload);
+    return { imageProof };
+  }
 }

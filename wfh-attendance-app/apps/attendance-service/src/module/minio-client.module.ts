@@ -15,7 +15,9 @@ export const MINIO_CLIENT = 'MINIO_CLIENT';
         console.log(
           `Attempting to connect to Minio endpoint: ${minioEndpoint}`,
         );
-        console.log("don't use ssl");
+        console.log(configService.get('MINIO_USE_SSL'));
+        console.log(configService.get('MINIO_ACCESS_KEY'));
+        console.log(configService.get('MINIO_SECRET_KEY'));
         return new Client({
           endPoint: configService.get('MINIO_ENDPOINT')!,
           useSSL: configService.get('MINIO_USE_SSL') === 'true',
@@ -29,4 +31,4 @@ export const MINIO_CLIENT = 'MINIO_CLIENT';
   // Export the provider so it can be used in other modules
   exports: [MINIO_CLIENT],
 })
-export class MinioClientModule {}
+export class MinioClientModule { }

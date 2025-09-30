@@ -61,6 +61,7 @@ const CheckInOutButtons: React.FC<{}> = () => {
     }
     await fetchLocation(MAX_LOCATION_RETRIES, setCoordinates, setLocationError);
 
+    console.log(coordinates);
     apiFetch("/checkout", {
       method: "POST",
       auth: true,
@@ -88,12 +89,12 @@ const CheckInOutButtons: React.FC<{}> = () => {
       >
         {attendanceStatus.checkIn
           ? `Checked in: ${new Date(
-              attendanceStatus.checkIn
-            ).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })}`
+            attendanceStatus.checkIn
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })}`
           : "Check-in"}
       </Button>
 
@@ -111,12 +112,12 @@ const CheckInOutButtons: React.FC<{}> = () => {
       >
         {attendanceStatus.checkOut
           ? `Checked out: ${new Date(
-              attendanceStatus.checkOut
-            ).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })}`
+            attendanceStatus.checkOut
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })}`
           : "Check-Out"}
       </Button>
     </div>
