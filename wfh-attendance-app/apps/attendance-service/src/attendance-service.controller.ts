@@ -11,7 +11,7 @@ import type {
   checkOutEmployee,
 } from 'apps/attendance-service/src/interface/checkin.interface';
 import { CheckOutDto } from 'apps/api-gateway/src/dto/checkin.dto';
-import type { AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
+import type { AttendanceHistoryAllRequest, AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
 // Define the shape of the data coming from other services
 
 @Controller()
@@ -19,7 +19,7 @@ export class AttendanceServiceController {
   constructor(
     private readonly attendanceServiceService: AttendanceService,
     private readonly fileService: MinioService,
-  ) {}
+  ) { }
 
   @Get()
   getHello(): string {
@@ -68,5 +68,12 @@ export class AttendanceServiceController {
     const attendanceHistory =
       await this.attendanceServiceService.getAttendanceStatus(payload);
     return { attendanceHistory };
+  }
+
+  @MessagePattern({ cmd: 'get_attendance_history_all' })
+  async getAttendanceHistoryAll(@Payload() payload: AttendanceHistoryAllRequest) {
+    const attendanceHistoryAll =
+      await this.attendanceServiceService.getAttendanceHistoryAll(payload);
+    return { attendanceHistoryAll };
   }
 }

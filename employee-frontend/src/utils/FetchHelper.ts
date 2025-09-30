@@ -20,10 +20,11 @@ export class ApiError extends Error {
 interface ApiFetchOptions extends Omit<RequestInit, "body"> {
   auth?: boolean;
   payload?: any;
+  params?: Record<string, any>; // <-- ADDED: For URL query parameters
 }
 
 /**
- * Retrieves the JWT token from localStorage.
+ * Retrieves the JWT token from Cookies.
  * @returns {string | null} The JWT token or null if not found.
  */
 export const getToken = (): string | null => {
@@ -45,7 +46,7 @@ export const apiFetch = async <T>(
   endpoint: string,
   options: ApiFetchOptions = {}
 ): Promise<T> => {
-  const { auth = true, payload, ...customConfig } = options;
+  const { auth = true, payload, params, ...customConfig } = options;
 
   const headers: Record<string, string> = {
     ...(customConfig.headers as Record<string, string>),
@@ -67,10 +68,10 @@ export const apiFetch = async <T>(
     headers,
   };
 
+  // Handle request body (payload) for methods like POST, PUT, etc.
   if (payload) {
     if (payload instanceof FormData) {
-      // If the payload is FormData, let the browser set the Content-Type.
-      // Do NOT manually set 'Content-Type': 'multipart/form-data'.
+      // Let the browser set the Content-Type for FormData
       config.body = payload;
     } else {
       // Otherwise, assume it's JSON.
@@ -79,10 +80,21 @@ export const apiFetch = async <T>(
     }
   }
 
+  // Ensure the final headers are set in the config
   config.headers = headers;
 
+  // --- MODIFICATION START ---
+  // Construct the final URL with query parameters if they exist
+  let url = `${BASE_URL}${endpoint}`;
+
+  if (params) {
+    const queryParams = new URLSearchParams(params);
+    url += `?${queryParams.toString()}`;
+  }
+  // --- MODIFICATION END ---
+
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    const response = await fetch(url, config); // <-- Use the new 'url' variable
 
     // If the response is not OK, throw our custom ApiError.
     if (!response.ok) {
@@ -102,6 +114,7 @@ export const apiFetch = async <T>(
     }
     return response.json() as Promise<T>;
   } catch (error) {
+    // Re-throw the error to be caught by the caller
     throw error;
   }
 };

@@ -1,14 +1,17 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   FileTypeValidator,
   Get,
   Inject,
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  ParseIntPipe,
   Post,
   Put,
+  Query,
   Req,
   UploadedFile,
   UseGuards,
@@ -34,7 +37,7 @@ export class ApiGatewayController {
     @Inject('ATTENDANCE_SERVICE')
     private readonly attendanceClient: ClientProxy,
     private readonly apiGatewayService: ApiGatewayService,
-  ) {}
+  ) { }
 
   @Post('auth/login')
   async login(@Body() loginDto: LoginDto) {
@@ -152,7 +155,7 @@ export class ApiGatewayController {
 
   @UseGuards(AuthGuard)
   @Get('attendance-status/:currentDate')
-  async getAttendanceHistory(
+  async getAttendanceStatus(
     @Req() req: any,
     @Param('currentDate') currentDate: string,
   ) {
@@ -165,6 +168,24 @@ export class ApiGatewayController {
         date: currentDate,
       },
     );
+    return await firstValueFrom(response);
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles('Admin')
+  @Get('attendance-history')
+  async getAttendanceHistoryAll(
+    @Req() req: any,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    const payload = { page, limit };
+
+    const response = this.attendanceClient.send(
+      { cmd: 'get_attendance_history_all' },
+      payload, // Pass the data as the second argument
+    );
+
     return await firstValueFrom(response);
   }
 }
