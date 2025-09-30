@@ -61,7 +61,6 @@ const CheckInOutButtons: React.FC<{}> = () => {
     }
     await fetchLocation(MAX_LOCATION_RETRIES, setCoordinates, setLocationError);
 
-    console.log(coordinates);
     apiFetch("/checkout", {
       method: "POST",
       auth: true,
