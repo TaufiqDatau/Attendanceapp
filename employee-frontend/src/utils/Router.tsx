@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/auths/ProtectedRoute";
 import AdminRoute from "@/components/auths/AdminRoute";
 import PublicRoute from "@/components/auths/PublicRoute";
 import Employee from "@/pages/admin/employee/Employee";
+import AttendancePage from "@/pages/admin/attendance/Attendance";
 
 // Import your new guard components
 
@@ -49,6 +50,10 @@ export const router = createBrowserRouter([
           {
             path: "employee",
             element: <Employee />,
+          },
+          {
+            path: "attendance",
+            element: <AttendancePage />,
           },
         ],
       },

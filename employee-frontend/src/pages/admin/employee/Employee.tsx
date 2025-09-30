@@ -36,83 +36,6 @@ interface TableParams {
   pagination?: TablePaginationConfig;
 }
 // Configuration for the table columns.
-const columns: TableProps<DataType>["columns"] = [
-  {
-    title: "Full Name",
-    fixed: "left",
-    width: 180,
-    render: (_, record) => (
-      <Typography.Text strong>
-        {`${record.first_name} ${record.last_name || ""}`}
-      </Typography.Text>
-    ),
-  },
-  { title: "Email", dataIndex: "email", key: "email", width: 220 },
-  {
-    title: "Phone Number",
-    dataIndex: "phone_number",
-    key: "phone_number",
-    width: 150,
-  },
-  {
-    title: "Birth Date",
-    dataIndex: "birth_date",
-    key: "birth_date",
-    width: 120,
-  },
-  {
-    title: "Birth Place",
-    dataIndex: "birth_place",
-    key: "birth_place",
-    width: 150,
-  },
-  {
-    title: "Full Address",
-    dataIndex: "full_address",
-    key: "full_address",
-    width: 250,
-  },
-  {
-    title: "Latitude",
-    dataIndex: "home_latitude",
-    key: "home_latitude",
-    width: 120,
-  },
-  {
-    title: "Longitude",
-    dataIndex: "home_longitude",
-    key: "home_longitude",
-    width: 120,
-  },
-  {
-    title: "Status",
-    key: "status",
-    dataIndex: "status",
-    fixed: "right",
-    width: 100,
-    render: (status: DataType["status"]) => {
-      const color =
-        { active: "green", inactive: "grey", suspended: "volcano" }[status] ||
-        "default";
-      return (
-        <Tag color={color} key={status}>
-          {status.toUpperCase()}
-        </Tag>
-      );
-    },
-  },
-  {
-    title: "Action",
-    key: "action",
-    fixed: "right",
-    width: 80,
-    render: (_, record) => (
-      <Space size="middle">
-        <a onClick={() => console.log("Editing user:", record.id)}>Edit</a>
-      </Space>
-    ),
-  },
-];
 
 // Mock data that matches the DataType interface and SQL schema.
 
@@ -131,11 +54,25 @@ export default function Employee() {
   });
   const [form] = Form.useForm();
   const handleEdit = (record: DataType) => {
+    console.log(record);
     setEditingUser(record);
+    //map the record to match the form
+    const mappedRecord = {
+      firstName: record.first_name,
+      lastName: record.last_name,
+      email: record.email,
+      phoneNumber: record.phone_number,
+      birthDate: record.birth_date,
+      birthPlace: record.birth_place,
+      fullAddress: record.full_address,
+      homeLatitude: record.home_latitude,
+      homeLongitude: record.home_longitude,
+      status: record.status,
+    };
     form.setFieldsValue({
-      ...record,
+      ...mappedRecord,
       // The DatePicker component expects a moment object, not a string.
-      birth_date: record.birth_date
+      birthDate: record.birth_date
         ? moment(record.birth_date, "YYYY-MM-DD")
         : null,
     });
@@ -219,6 +156,15 @@ export default function Employee() {
       dataIndex: "birth_date",
       key: "birth_date",
       width: 120,
+      render: (_, record) => (
+        <Space size="middle">
+          <Typography.Text>
+            {record.birth_date
+              ? moment(record.birth_date).format("YYYY-MM-DD")
+              : ""}
+          </Typography.Text>
+        </Space>
+      ),
     },
     {
       title: "Birth Place",

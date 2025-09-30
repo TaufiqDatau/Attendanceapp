@@ -25,19 +25,19 @@ const AdminHeader: React.FC = () => {
       <div className="flex flex-1 items-center justify-end gap-6">
         <nav className="flex items-center gap-6">
           <a
-            className="text-sm pointer-events-none font-medium text-slate-600 hover:text-primary "
+            className="text-sm pointer-events-auto cursor-pointer font-medium text-slate-600 hover:text-primary "
             onClick={() => navigate("/admin")}
           >
             Dashboard
           </a>
           <a
-            className="text-sm pointer-events-none  font-medium text-slate-600 hover:text-primary "
+            className="text-sm pointer-events-auto cursor-pointer  font-medium text-slate-600 hover:text-primary "
             onClick={() => navigate("/admin/employee")}
           >
             Employees
           </a>
           <a
-            className="text-sm font-medium text-slate-600 hover:text-primary "
+            className="text-sm font-medium text-slate-600 cursor-pointer hover:text-primary "
             onClick={() => navigate("/admin/attendance")}
           >
             Attendance
