@@ -2,17 +2,25 @@ import { NestFactory } from '@nestjs/core';
 import { ApiGatewayModule } from './api-gateway.module';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalRpcExceptionFilter } from 'apps/api-gateway/src/filters/rpc-exceptions.filters';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
-  // Configure CORS for a specific origin
+  const configService = app.get(ConfigService); // Get ConfigService instance
+
+  // Configure CORS from environment variables
+  console.log(configService.get<string>('FRONTEND_URL'));
   app.enableCors({
-    origin: 'http://localhost:5173', // Your Vite frontend URL
+    origin: configService.get<string>('FRONTEND_URL'), // Use env var
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Allow cookies to be sent
+    credentials: true,
   });
+
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new GlobalRpcExceptionFilter());
-  await app.listen(process.env.port ?? 3000);
+
+  const port = configService.get<number>('API_GATEWAY_PORT') || 3000;
+  await app.listen(port);
+  console.log(`API Gateway is running on: ${await app.getUrl()}`);
 }
 bootstrap();
