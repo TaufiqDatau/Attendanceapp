@@ -1,7 +1,6 @@
 import Button from "@/components/common/Button";
 import type { Coordinates } from "@/pages/attendance/interface/coordinates";
 import AttendanceInfo from "@/pages/homepage/Components/AttendanceInfo";
-import QuickActionsSection from "@/pages/homepage/Components/QuickActions";
 import { apiFetch } from "@/utils/FetchHelper";
 import { fetchLocation } from "@/utils/LocationHelper";
 import React, { useEffect, useState } from "react";
