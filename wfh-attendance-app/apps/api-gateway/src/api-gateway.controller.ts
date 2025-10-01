@@ -28,6 +28,7 @@ import { AuthGuard } from 'apps/api-gateway/src/auth/auth.guard';
 import { HomeLocationDto } from 'apps/api-gateway/src/dto/homeLocation.dto';
 import { Roles } from 'apps/api-gateway/src/auth/roles.decorator';
 import { GetUsersDto } from 'apps/api-gateway/src/dto/getUsers.dto';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Controller()
 export class ApiGatewayController {
@@ -37,7 +38,7 @@ export class ApiGatewayController {
     @Inject('ATTENDANCE_SERVICE')
     private readonly attendanceClient: ClientProxy,
     private readonly apiGatewayService: ApiGatewayService,
-  ) {}
+  ) { }
 
   @Post('auth/login')
   async login(@Body() loginDto: LoginDto) {
@@ -59,6 +60,14 @@ export class ApiGatewayController {
   async getAllUsers(@Req() req: any, @Body() body: GetUsersDto) {
     console.log(body);
     const response = this.userClient.send('get_all_users', body);
+    return await firstValueFrom(response);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('user/update')
+  async updateUser(@Req() req: any, @Body() user: UpdateUserDto) {
+    const userId = req.user.id;
+    const response = this.userClient.send('update_user', { userId, ...user });
     return await firstValueFrom(response);
   }
 
@@ -190,7 +199,6 @@ export class ApiGatewayController {
   }
 
   @UseGuards(AuthGuard)
-  @Roles('Admin')
   @Get('attendance-proof/:object_name')
   async getImageProof(@Param('object_name') objectName: string) {
     console.log(objectName);

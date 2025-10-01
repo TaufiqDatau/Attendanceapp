@@ -263,51 +263,82 @@ export default function Employee() {
   const handleOk = async (values: any) => {
     // If we are editing, you would handle the update logic here (e.g., call a different endpoint)
     if (editingUser) {
-      console.log("Handle user update logic here.");
-      // Example: PATCH /api/users/{editingUser.id}
+      try {
+        const payload = {
+          id: editingUser.id,
+          first_name: values.firstName,
+          last_name: values.lastName,
+          email: values.email,
+          phone_number: values.phoneNumber,
+          birth_date: values.birthDate
+            ? values.birthDate.format("YYYY-MM-DD")
+            : undefined,
+          birth_place: values.birthPlace,
+          full_address: values.fullAddress,
+          status: values.status,
+        };
+
+        //@ts-ignore
+        const response = await apiFetch("/user/update", {
+          method: "POST",
+          auth: true, // Assuming registration requires auth or this is a placeholder
+          payload: payload,
+        });
+
+        messageApi.open({
+          type: "success",
+          content: "User Updated successfully!",
+          duration: 10,
+        });
+        setIsModalVisible(false);
+        setEditingUser(null);
+        form.resetFields();
+        fetchUsers();
+      } catch (err) {
+        console.error("Failed to update user:", err);
+        message.error("Failed to update user. Please try again."); // 😟 Error feedback
+      }
       return;
-    }
+    } else {
+      try {
+        const payload = {
+          ...values,
+          birthDate: values.birthDate
+            ? values.birthDate.format("YYYY-MM-DD")
+            : undefined,
+        };
 
-    console.log(values);
-    // --- Logic for Creating a New User ---
-    try {
-      const payload = {
-        ...values,
-        birthDate: values.birthDate
-          ? values.birthDate.format("YYYY-MM-DD")
-          : undefined,
-      };
+        delete payload.confirm_password;
 
-      delete payload.confirm_password;
+        console.log("Submitting to API:", payload);
 
-      console.log("Submitting to API:", payload);
+        // Call your apiFetch function to register the new user
+        // @ts-ignore
+        const response = await apiFetch("/auth/register", {
+          method: "POST",
+          auth: true, // Assuming registration requires auth or this is a placeholder
+          payload: payload,
+        });
 
-      // Call your apiFetch function to register the new user
-      // @ts-ignore
-      const response = await apiFetch("/auth/register", {
-        method: "POST",
-        auth: true, // Assuming registration requires auth or this is a placeholder
-        payload: payload,
-      });
+        // Assuming the API returns the created user object
+        // Add the new user to the local state to update the table
+        // setDataSource([
+        //   ...dataSource,
+        //   { ...newUserFromApi, key: newUserFromApi.id.toString() },
+        // ]);
 
-      // Assuming the API returns the created user object
-      // Add the new user to the local state to update the table
-      // setDataSource([
-      //   ...dataSource,
-      //   { ...newUserFromApi, key: newUserFromApi.id.toString() },
-      // ]);
-
-      // message.success("User created successfully!"); // 🥳 Success feedback
-      messageApi.open({
-        type: "success",
-        content: "User created successfully!",
-        duration: 10,
-      });
-      setIsModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-      console.error("Failed to create user:", error);
-      message.error("Failed to create user. Please try again."); // 😟 Error feedback
+        // message.success("User created successfully!"); // 🥳 Success feedback
+        messageApi.open({
+          type: "success",
+          content: "User created successfully!",
+          duration: 10,
+        });
+        setIsModalVisible(false);
+        form.resetFields();
+      } catch (error) {
+        console.error("Failed to create user:", error);
+        message.error("Failed to create user. Please try again."); // 😟 Error feedback
+      }
     }
   };
   return (

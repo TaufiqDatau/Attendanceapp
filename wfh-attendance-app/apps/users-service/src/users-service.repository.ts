@@ -1,14 +1,14 @@
 import { MYSQL_CONNECTION } from '@app/database/constant';
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from 'apps/auth-service/src/interface/user.interface';
+import { UserAuth } from 'apps/auth-service/src/interface/user.interface';
 import { Register } from 'apps/users-service/src/interface/register.interface';
 import { ResultSetHeader, type Pool } from 'mysql2/promise';
 import * as bcrypt from 'bcrypt'; // 👈 1. Import bcrypt
-import { getAllUserRequest } from 'apps/users-service/src/interface/users.interface';
+import { getAllUserRequest, user } from 'apps/users-service/src/interface/users.interface';
 
 @Injectable()
 export class UserRepository {
-  constructor(@Inject(MYSQL_CONNECTION) private readonly pool: Pool) {}
+  constructor(@Inject(MYSQL_CONNECTION) private readonly pool: Pool) { }
 
   async registerUser(user: Register) {
     // 1. Get a connection from the pool
@@ -79,6 +79,32 @@ export class UserRepository {
     }
   }
 
+  async updateUser(user: user) {
+    const sql = `UPDATE users SET 
+    first_name = ?, 
+    last_name = ?, 
+    email = ?, 
+    birth_date = ?, 
+    birth_place = ?, 
+    phone_number = ?, 
+    full_address = ?, 
+    status = ?,
+    updated_at = NOW()
+    WHERE id = ?`;
+    const params = [
+      user.first_name,
+      user.last_name,
+      user.email,
+      user.birth_date,
+      user.birth_place,
+      user.phone_number,
+      user.full_address,
+      user.status.toLowerCase(),
+      user.id]
+    await this.pool.query(sql, params);
+
+    return { message: 'User updated successfully' };
+  }
   async getAllUsers(body: getAllUserRequest) {
     const { page, limit } = body;
     const offset = (page - 1) * limit;

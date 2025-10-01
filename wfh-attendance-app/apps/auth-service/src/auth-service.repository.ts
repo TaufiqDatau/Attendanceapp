@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Pool } from 'mysql2/promise';
-import { User } from 'apps/auth-service/src/interface/user.interface';
+import { UserAuth } from 'apps/auth-service/src/interface/user.interface';
 import { MYSQL_CONNECTION } from '@app/database/constant';
 
 @Injectable()
 export class AuthRepository {
-  constructor(@Inject(MYSQL_CONNECTION) private readonly pool: Pool) {}
+  constructor(@Inject(MYSQL_CONNECTION) private readonly pool: Pool) { }
 
-  async findUserByEmail(email: string): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<UserAuth | null> {
     const sql = `
      SELECT
         u.id,
@@ -34,7 +34,7 @@ export class AuthRepository {
     }
 
     // Manually map the raw SQL result to your User interface
-    const user: User = {
+    const user: UserAuth = {
       id: userRow.id,
       name: `${userRow.first_name} ${userRow.last_name || ''}`.trim(),
       email: userRow.email,

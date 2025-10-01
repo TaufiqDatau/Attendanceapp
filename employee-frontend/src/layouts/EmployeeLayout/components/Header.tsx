@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import Icon from "@/components/common/Icon";
-import { SettingsIcon, LogOutIcon } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
 
@@ -37,8 +37,6 @@ const Header: React.FC<{}> = () => {
 
   const items: MenuProps["items"] = [
     { key: "1", label: "My Account", disabled: true },
-    { key: "2", label: "Profile", extra: "⌘P" },
-    { key: "4", label: "Settings", icon: <SettingsIcon />, extra: "⌘S" },
     { type: "divider" },
     {
       key: "logout",

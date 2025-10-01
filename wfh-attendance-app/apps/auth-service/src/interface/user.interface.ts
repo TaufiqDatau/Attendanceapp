@@ -6,7 +6,7 @@ export enum UserStatus {
   SUSPENDED = 'suspended',
 }
 
-export interface User {
+export interface UserAuth {
   id: number;
   name: string;
   email: string;
