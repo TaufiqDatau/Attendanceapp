@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AttendanceServiceRepository } from 'apps/attendance-service/src/attendance-service.repository';
-import { AttendanceHistoryAllRequest, AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
+import { AttendanceHistoryAllRequest, AttendanceHistoryUser, AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
 import {
   CheckInEmployee,
   checkOutEmployee,
@@ -50,6 +50,12 @@ export class AttendanceService {
       attendanceHistoryAllRequest,
     );
     console.log('succesfully added attendance', data);
+    return data;
+  }
+
+  async getAttendanceStats(payload: AttendanceHistoryUser) {
+    console.log("get attendance stats from this data", payload)
+    const data = await this.attendanceRepository.getAttendanceStatsByUserId(payload);
     return data;
   }
 }

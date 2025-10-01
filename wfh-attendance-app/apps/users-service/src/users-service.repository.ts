@@ -105,6 +105,13 @@ export class UserRepository {
 
     return { message: 'User updated successfully' };
   }
+
+  async resetUserHomeLocation(id: number) {
+    const sql = 'UPDATE users SET home_latitude = NULL, home_longitude = NULL WHERE id = ?';
+    await this.pool.query(sql, [id]);
+
+    return { message: 'User home location reset successfully' };
+  }
   async getAllUsers(body: getAllUserRequest) {
     const { page, limit } = body;
     const offset = (page - 1) * limit;

@@ -1,12 +1,19 @@
 -----
-
-# WFH Employee Attendance Application
-
-Hello\! This is my submission for the Fullstack Web Technical Test from Dexa Group. This project is a comprehensive, full-stack web application designed to manage Work-From-Home (WFH) employee attendance.
-
-[cite\_start]The application is built based on the provided use case [cite: 25][cite\_start], featuring a backend with a **microservices architecture** using **NestJS** [cite: 5, 18] [cite\_start]and a dynamic, responsive frontend using **React.js**[cite: 10]. [cite\_start]The goal was to create two primary interfaces: one for employees to log in and record their attendance [cite: 27][cite\_start], and another for HR administrators to manage employee data and monitor attendance records[cite: 29].
-
 -----
+## WFH Employee Attendance Application
+
+Hello! This is my submission for the Fullstack Web Technical Test from Dexa Group. This project is a comprehensive, full-stack web application designed to manage Work-From-Home (WFH) employee attendance.
+
+**Live Application:**
+`https://dexa-frontend.zeabur.app/`
+
+**How to Access the Admin Dashboard:**
+1.  **Obtain Credentials:** Please contact me directly to receive the login credentials for the admin account.
+2.  **Log In & Navigate:** Once you have logged in as an admin, please append `/admin` to the URL in your browser's address bar to access the dashboard.
+    * **Example:** `https://dexa-frontend.zeabur.app/admin`
+
+The application is built based on the provided use case, featuring a backend with a **microservices architecture** using **NestJS** and a dynamic, responsive frontend using **React.js**. The goal was to create two primary interfaces: one for employees to log in and record their attendance , and another for HR administrators to manage employee data and monitor attendance records.
+
 
 ## ✨ Core Features
 
@@ -14,15 +21,15 @@ The application is split into two main roles, each with its own set of functiona
 
 ### For Employees
 
-  * [cite\_start]**Secure Authentication**: Employees can log in to access their dashboard[cite: 27].
-  * [cite\_start]**Clock-in & Clock-out**: Capture attendance with the exact date, time, and location coordinates[cite: 27].
-  * [cite\_start]**Photo Proof**: Upload a photo during clock-in as evidence of working from home[cite: 27].
-  * **Attendance History**: View personal attendance logs.
+  * **Secure Authentication**: Employees can log in to access their dashboard.
+  * **Clock-in & Clock-out**: Capture attendance with the exact date, time, and location coordinates.
+  * **Photo Proof**: Upload a photo during clock-in as evidence of working from home, complete with geofencing so the attendance can't check in outside of the designated area.
+  ![diagram](./picture/attendance-screen.png)
 
 ### For HR Admins
 
-  * [cite\_start]**Employee Management**: A web-based interface to add new employees or update existing employee data[cite: 29].
-  * [cite\_start]**Attendance Monitoring**: View a comprehensive list of attendance records submitted by all employees[cite: 29].
+  * **Employee Management**: A web-based interface to add new employees or update existing employee data.
+  * **Attendance Monitoring**: View a comprehensive list of attendance records submitted by all employees.
   * **Role-Based Access**: Secure endpoints ensure that only authorized HR personnel can manage employee data.
 
 -----
@@ -33,23 +40,26 @@ This project is built as a monorepo to streamline development and deployment.
 
 ### Backend (`wfh-attendance-app`)
 
-[cite\_start]The backend follows a microservice pattern to ensure scalability and separation of concerns[cite: 18].
+The backend follows a microservice pattern to ensure scalability and separation of concerns.
 
-  * [cite\_start]**Framework**: **NestJS** [cite: 5]
-  * [cite\_start]**Language**: **TypeScript** [cite: 4]
+  * **Framework**: **NestJS** 
+  * **Language**: **TypeScript** 
   * **`api-gateway`**: A single entry point that receives all client requests and routes them to the appropriate internal service.
   * **`auth-service`**: Handles user authentication, role validation, and JWT generation.
   * **`users-service`**: Manages all CRUD operations for employee data.
   * **`attendance-service`**: Manages all attendance-related logic, including clock-ins, clock-outs, and file uploads.
-  * [cite\_start]**Database**: **MySQL** with migrations handled by `db-migrate`[cite: 6].
+  * **Database**: **MySQL** with migrations handled by `db-migrate`.
   * **Object Storage**: **Minio** for storing uploaded attendance photos.
   * **Communication**: Services communicate over **TCP** for efficient, low-latency internal requests.
+
+Below is the architecture of the microservices.
+![diagram](./picture/diagram.png)
 
 ### Frontend (`employee-frontend`)
 
 A modern, single-page application (SPA) providing a seamless user experience.
 
-  * [cite\_start]**Framework**: **React.js** (with Vite) [cite: 10]
+  * **Framework**: **React.js** (with Vite) 
   * **Language**: **TypeScript**
   * **Styling**: **Tailwind CSS** for a utility-first design approach.
   * **Routing**: `react-router-dom` for handling client-side navigation.

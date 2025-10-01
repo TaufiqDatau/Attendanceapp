@@ -1,9 +1,8 @@
 import { Dropdown, Space, type MenuProps } from "antd";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOutIcon } from "lucide-react";
+import { ArrowLeftIcon, LogOutIcon } from "lucide-react";
 import Cookies from "js-cookie";
-
 
 const AdminHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -24,7 +23,17 @@ const AdminHeader: React.FC = () => {
   ];
   return (
     <header className="flex items-center justify-between whitespace-nowrap border-b border-primary/20 px-10 py-3">
-      <div className="flex items-center gap-4 text-slate-900 dark:text-white">
+      <div className="flex items-center gap-4 text-slate-900 ">
+        <button
+          onClick={() => navigate("/")}
+          className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeftIcon
+            size={24}
+            className="text-text-light dark:text-text-dark"
+          />
+        </button>
         <Dropdown menu={{ items }} arrow={{ pointAtCenter: true }}>
           <a onClick={(e) => e.preventDefault()}>
             <Space>
@@ -38,7 +47,7 @@ const AdminHeader: React.FC = () => {
             </Space>
           </a>
         </Dropdown>
-        <h2 className="text-lg font-bold">Attendance Tracker</h2>
+        <h2 className="text-lg font-bold text-black">Admin Dashboard</h2>
       </div>
       <div className="flex flex-1 items-center justify-end gap-6">
         <nav className="flex items-center gap-6">

@@ -32,9 +32,20 @@ export interface AttendanceHistoryAllRequest {
   limit: number;
 }
 
+export interface AttendanceHistoryUser {
+  id: number,
+  startDate: Date,
+  endDate: Date
+}
+
 // The final, structured response object
 export interface ApiResponse {
   data: Omit<RawAttendanceRecord, keyof RowDataPacket>[];
   totalItem: number;
   currentPage: number;
 }
+export type AttendanceStats = {
+  total_attendance_days: number;
+  total_leaves: number;
+  total_incomplete_days: number;
+} & RowDataPacket;

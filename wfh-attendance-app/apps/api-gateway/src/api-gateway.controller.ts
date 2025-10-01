@@ -72,6 +72,15 @@ export class ApiGatewayController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('user/attendance-stats')
+  async getAttendanceStats(@Req() req: any, @Query("startDate") startDate: string, @Query("endDate") endDate: string) {
+    const userId = req.user.id;
+    console.log("start date and end date", startDate, endDate)
+    const response = this.attendanceClient.send({ cmd: 'get_attendance_stats' }, { id: userId, startDate, endDate });
+    return await firstValueFrom(response);
+  }
+
+  @UseGuards(AuthGuard)
   @Put('user/update-home-location')
   async updateHomeLocation(
     @Body() homeLocationDto: HomeLocationDto,

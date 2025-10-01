@@ -24,7 +24,7 @@ interface AttendanceRecord {
   checkin_object_name: string | null;
   checkout_time: string | null;
   checkout_object_name: string | null;
-  status: "Present" | "Incomplete";
+  status: "Present" | "Incomplete" | "Late" | "Absent";
 }
 
 interface ApiResponse {
@@ -56,10 +56,10 @@ const AttendancePage: React.FC = () => {
   // Helper to format time strings
   const formatTime = (timeString: string | null) => {
     if (!timeString) return "Missing";
-    return new Date(timeString).toLocaleTimeString("en-US", {
+    return new Date(timeString).toLocaleTimeString("id-ID", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hour12: false,
     });
   };
 

@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import Icon from "@/components/common/Icon";
-import { LogOutIcon } from "lucide-react";
+// 1. Import ArrowLeftIcon from lucide-react
+import { LogOutIcon, ArrowLeftIcon } from "lucide-react";
 import type { MenuProps } from "antd";
 import { Dropdown, Space } from "antd";
 
-// 1. Update the DecodedToken interface to include the 'name' property
 interface DecodedToken {
   name: string;
   email: string;
@@ -22,7 +22,6 @@ const Header: React.FC<{}> = () => {
     if (token) {
       try {
         const decodedToken = jwtDecode<DecodedToken>(token);
-        // 2. Directly use the 'name' field from the token
         setUserName(decodedToken.name);
       } catch (error) {
         console.error("Failed to decode token:", error);
@@ -50,6 +49,18 @@ const Header: React.FC<{}> = () => {
   return (
     <header className="flex justify-between items-center mb-8">
       <div className="flex items-center gap-4">
+        {/* 2. Add the back button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+          aria-label="Go back"
+        >
+          <ArrowLeftIcon
+            size={24}
+            className="text-text-light dark:text-text-dark"
+          />
+        </button>
+
         <Dropdown menu={{ items }} arrow={{ pointAtCenter: true }}>
           <a onClick={(e) => e.preventDefault()}>
             <Space>

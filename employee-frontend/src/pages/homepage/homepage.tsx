@@ -57,6 +57,7 @@ const CheckInOutButtons: React.FC<{}> = () => {
     }
   };
 
+
   useEffect(() => {
     fetchAttendanceStatus();
   }, []);
@@ -82,6 +83,7 @@ const CheckInOutButtons: React.FC<{}> = () => {
       // 2. (Optional but good practice) Update the component's state
       setCoordinates(fetchedCoordinates);
 
+      setIsAttendanceStatusLoading(true);
       // 3. Use the newly fetched coordinates directly for the API call
       await apiFetch("/checkout", {
         method: "POST",
@@ -97,6 +99,7 @@ const CheckInOutButtons: React.FC<{}> = () => {
         })
         .catch((apiError) => {
           console.log("API Error:", apiError);
+          setIsAttendanceStatusLoading(false);
           // Handle API error
         });
     } catch (error) {
@@ -121,12 +124,12 @@ const CheckInOutButtons: React.FC<{}> = () => {
       >
         {attendanceStatus.checkIn
           ? `Checked in: ${new Date(
-              attendanceStatus.checkIn
-            ).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })}`
+            attendanceStatus.checkIn
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })}`
           : "Check-in"}
       </Button>
 
@@ -144,12 +147,12 @@ const CheckInOutButtons: React.FC<{}> = () => {
       >
         {attendanceStatus.checkOut
           ? `Checked out: ${new Date(
-              attendanceStatus.checkOut
-            ).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })}`
+            attendanceStatus.checkOut
+          ).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })}`
           : "Check-Out"}
       </Button>
     </div>
@@ -180,7 +183,7 @@ const HomePage: React.FC<{}> = () => {
           <main>
             <CheckInOutButtons />
             <ProgressSection />
-            <QuickActionsSection />
+            {/* <QuickActionsSection /> */}
           </main>
         </div>
       </div>

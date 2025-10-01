@@ -9,6 +9,8 @@ import {
 import {
   ApiResponse,
   AttendanceHistoryAllRequest,
+  AttendanceHistoryUser,
+  AttendanceStats,
   AttendanceStatusRequest,
   AttendanceStatusResponse,
   RawAttendanceRecord,
@@ -179,6 +181,8 @@ export class AttendanceServiceRepository {
         { checkIn: null, checkOut: null },
       );
 
+      this.logger.log(attendanceStatus);
+
       return attendanceStatus;
     } catch (error) {
       throw error;
@@ -251,4 +255,45 @@ export class AttendanceServiceRepository {
       currentPage: page,
     };
   }
+
+  async getAttendanceStatsByUserId(payload: AttendanceHistoryUser) {
+    // This single query calculates all required metrics in one go.
+    const query = `
+    SELECT
+        COALESCE(SUM(daily_stats.has_checkin), 0) AS total_attendance_days,
+        COALESCE(SUM(daily_stats.has_leave), 0) AS total_leaves,
+        COALESCE(SUM(daily_stats.has_checkin AND NOT daily_stats.has_checkout), 0) AS total_incomplete_days
+    FROM (
+        SELECT
+            MAX(action = 'checkin') AS has_checkin,
+            MAX(action = 'checkout') AS has_checkout,
+            MAX(action = 'onLeave') AS has_leave
+        FROM attendance
+        WHERE
+            user_id = ?
+            AND attendance_date BETWEEN ? AND ?
+        GROUP BY
+            attendance_date
+    ) AS daily_stats;
+  `;
+
+
+    const [rows] = await this.pool.query<AttendanceStats[]>(query, [
+      payload.id,
+      payload.startDate,
+      payload.endDate,
+    ]);
+    this.logger.log(rows);
+
+    // The query always returns one row. We access the first result object.
+    const result = rows[0];
+
+    // Explicitly convert results to numbers, as some DB drivers return strings or BigInts.
+    return {
+      total_attendance_days: Number(result.total_attendance_days),
+      total_leaves: Number(result.total_leaves),
+      total_incomplete_days: Number(result.total_incomplete_days),
+    };
+  }
+
 }

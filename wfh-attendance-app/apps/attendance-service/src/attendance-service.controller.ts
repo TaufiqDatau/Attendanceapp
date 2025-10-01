@@ -11,7 +11,7 @@ import type {
   checkOutEmployee,
 } from 'apps/attendance-service/src/interface/checkin.interface';
 import { CheckOutDto } from 'apps/api-gateway/src/dto/checkin.dto';
-import type { AttendanceHistoryAllRequest, AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
+import type { AttendanceHistoryAllRequest, AttendanceHistoryUser, AttendanceStatusRequest } from 'apps/attendance-service/src/interface/attendance.interface';
 // Define the shape of the data coming from other services
 
 @Controller()
@@ -65,6 +65,7 @@ export class AttendanceServiceController {
 
   @MessagePattern({ cmd: 'get_attendance_status' })
   async getAttendanceHistory(@Payload() payload: AttendanceStatusRequest) {
+    console.log('payload', payload);
     const attendanceHistory =
       await this.attendanceServiceService.getAttendanceStatus(payload);
     return { attendanceHistory };
@@ -81,5 +82,12 @@ export class AttendanceServiceController {
   async getImageProof(@Payload() payload: string) {
     const imageProof = await this.fileService.getFileUrl(payload);
     return { imageProof };
+  }
+
+  @MessagePattern({ cmd: 'get_attendance_stats' })
+  async getAttendanceStats(@Payload() payload: AttendanceHistoryUser) {
+    const attendanceStats =
+      await this.attendanceServiceService.getAttendanceStats(payload);
+    return { attendanceStats };
   }
 }
